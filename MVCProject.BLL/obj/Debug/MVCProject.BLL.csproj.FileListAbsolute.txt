@@ -1,0 +1,12 @@
+C:\Users\josiph.TECHED\Desktop\MVCProject\MVCProject.BLL\bin\Debug\MVCProject.BLL.dll
+C:\Users\josiph.TECHED\Desktop\MVCProject\MVCProject.BLL\bin\Debug\MVCProject.BLL.pdb
+C:\Users\josiph.TECHED\Desktop\MVCProject\MVCProject.BLL\bin\Debug\MVCProject.DAL.dll
+C:\Users\josiph.TECHED\Desktop\MVCProject\MVCProject.BLL\bin\Debug\EntityFramework.dll
+C:\Users\josiph.TECHED\Desktop\MVCProject\MVCProject.BLL\bin\Debug\MVCProject.DAL.pdb
+C:\Users\josiph.TECHED\Desktop\MVCProject\MVCProject.BLL\bin\Debug\MVCProject.DAL.dll.config
+C:\Users\josiph.TECHED\Desktop\MVCProject\MVCProject.BLL\bin\Debug\EntityFramework.xml
+C:\Users\josiph.TECHED\Desktop\MVCProject\MVCProject.BLL\obj\Debug\MVCProject.BLL.csprojResolveAssemblyReference.cache
+C:\Users\josiph.TECHED\Desktop\MVCProject\MVCProject.BLL\obj\Debug\MVCProject.BLL.csproj.CoreCompileInputs.cache
+C:\Users\josiph.TECHED\Desktop\MVCProject\MVCProject.BLL\obj\Debug\MVCProject.BLL.csproj.CopyComplete
+C:\Users\josiph.TECHED\Desktop\MVCProject\MVCProject.BLL\obj\Debug\MVCProject.BLL.dll
+C:\Users\josiph.TECHED\Desktop\MVCProject\MVCProject.BLL\obj\Debug\MVCProject.BLL.pdb

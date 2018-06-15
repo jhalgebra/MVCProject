@@ -1,0 +1,61 @@
+﻿@using MVCProject.BLL
+@model ViewCustomersViewModel
+
+@{
+    ViewBag.Title = "View Customer Data";
+}
+
+<h2>View Customer Data</h2>
+
+@*<p>
+        @Html.ActionLink("Create New", "Create")
+    </p>*@
+
+@Html.HiddenFor(model => model.CountryID)
+@Html.HiddenFor(model => model.CityID)
+
+@using (Html.BeginForm()) {
+<div class="row filters">
+    <div class="form-group col-md-6">
+        @Html.Label("Country")
+        @Html.DropDownListFor(
+                           model => model.CountryID,
+                           selectList: Model.Countries.Select(country => new SelectListItem {
+                               Text = country.Naziv,
+                               Value = country.IDDrzava.ToString()
+                           }),
+                           htmlAttributes: new { @class = "form-control", onchange = "this.form.submit();" }
+                       )
+    </div>
+
+    <div class="form-group col-md-6">
+        @Html.Label("City")
+        @Html.DropDownListFor(
+                           model => model.CityID,
+                           selectList: Model.Cities.Select(city => new SelectListItem {
+                               Text = city.Naziv,
+                               Value = city.IDGrad.ToString()
+                           }),
+                           htmlAttributes: new { @class = "form-control", onchange = "this.form.submit();" }
+                       )
+    </div>
+</div>
+}
+
+@Html.Table(
+    data: Model.GetCustomers(),
+    propertiesToSkip: new[] { "ID" },
+    divClass: "customers",
+    tableClass: "table table-condensed table-hover",
+    trClickRoute: new RouteInfo<CustomerViewModel> {
+        ActionName = "ViewBills",
+        ControllerName = "AdventureWorks",
+        RouteValues = item => new { customerID = item.ID }
+    },
+    editButtonRoute: new RouteInfo<CustomerViewModel> {
+        ActionName = "EditCustomer",
+        ControllerName = "AdventureWorks",
+        RouteValues = item => new { customerID = item.ID }
+    },
+    headers: new[] { "Name", "Surname", "Email", "Telephone", "City", "Country" }
+)

@@ -1,0 +1,21 @@
+﻿@using MVCProject.BLL
+@model ViewBillsViewModel
+
+@{
+    ViewBag.Title = "ViewBills";
+}
+
+<h2>View Bills</h2>
+
+@Html.Table(
+    data: Model.Bills,
+    propertiesToSkip: null,
+    divClass: "bills",
+    tableClass: "table table-condensed table-hover",
+    trClickRoute: new RouteInfo<Bill> {
+        ActionName = "ViewItems",
+        ControllerName = "AdventureWorks",
+        RouteValues = item => item.ID
+    },
+    headers: new[] { "Date Issued" }
+)

@@ -8,8 +8,10 @@ namespace MVCProject.BLL {
         public decimal TotalPrice { get; set; }
         public Product Product { get; set; }
 
-        public static Item FromStavka(Stavka stavka)
-            => new Item {
+        public static Item FromStavka(Stavka stavka) {
+            var subcategory = Repository.GetSubcategory(stavka.ProizvodID);
+
+            return new Item {
                 CostPerUnit = stavka.CijenaPoKomadu,
                 DiscountInPercentage = stavka.PopustUPostocima,
                 Quantity = stavka.Kolicina,
@@ -20,9 +22,10 @@ namespace MVCProject.BLL {
                     Name = stavka.Proizvod.Naziv,
                     Number = stavka.Proizvod.BrojProizvoda,
                     PriceWithoutVAT = stavka.Proizvod.CijenaBezPDV,
-                    Category = stavka.Proizvod.Potkategorija.Kategorija.Naziv,
-                    Subcategory = stavka.Proizvod.Potkategorija.Naziv
+                    Category = subcategory.Kategorija.Naziv,
+                    Subcategory = subcategory.Naziv
                 }
             };
+        }
     }
 }

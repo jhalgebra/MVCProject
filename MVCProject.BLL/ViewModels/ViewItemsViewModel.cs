@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace MVCProject.BLL {
     public class ViewItemsViewModel {
-        public List<Item> Items;
+        public List<Item> Items { get; }
 
         public ViewItemsViewModel(int billID) {
             Items = Repository.GetItemsForBill(billID)

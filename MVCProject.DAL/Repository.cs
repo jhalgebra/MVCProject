@@ -11,7 +11,7 @@ namespace MVCProject.DAL {
 
         public static Kupac GetCustomer(int customerID) {
             using (var model = new DataModel())
-                return model.Kupac.Find(customerID);//ToList().FirstOrDefault(kupac => kupac.IDKupac == customerID);
+                return model.Kupac.Include("Grad").First(customer => customer.IDKupac == customerID);
         }
 
         public static List<Grad> GetCitiesForCountry(int countryID) {
@@ -21,9 +21,38 @@ namespace MVCProject.DAL {
                     .ToList();
         }
 
+        public static Drzava GetCountry(int countryID, out int firstCityID) {
+            using(var model = new DataModel()) {
+                var country = model.Drzava.Find(countryID);
+
+                if(country == null) {
+                    firstCityID = -1;
+                    return null;
+                }
+
+                firstCityID = model.Grad.First(grad => grad.DrzavaID == countryID).IDGrad;
+                return country;
+            }
+        }
+
+        public static void UpdateCustomer(Kupac customer) {
+            using(var model = new DataModel()) {
+                var kupac = model.Kupac.Find(customer.IDKupac);
+
+                kupac.Email = customer.Email;
+                kupac.GradID = customer.GradID;
+                kupac.Ime = customer.Ime;
+                kupac.Prezime = customer.Prezime;
+                kupac.Telefon = customer.Telefon;
+
+                model.SaveChanges();
+            }
+        }
+
         public static List<Kupac> GetCustomersForCity(int cityID) {
             using (var model = new DataModel())
                 return model.Kupac
+                    .Include("Grad")
                     .Where(kupac => kupac.GradID == cityID)
                     .ToList();
         }
@@ -45,14 +74,40 @@ namespace MVCProject.DAL {
                     .ToList();
         }
 
-        public static int? GetCountryID(int? gradID) {
-            using (var model = new DataModel())
-                return model.Grad.FirstOrDefault(grad => grad.IDGrad == gradID)?.DrzavaID;
+        public static Potkategorija GetSubcategory(int productID) {
+            using (var model = new DataModel()) {
+                var proizvod = model.Proizvod.Find(productID);
+
+                return model.Potkategorija
+                    .Include("Kategorija")
+                    .First(potkategorija => potkategorija.IDPotkategorija == proizvod.PotkategorijaID);
+            }
         }
 
-        public static bool CityIsFromCountry(int cityID, int countryID) {
+        public static Drzava GetCountryByCityID(int? cityID) {
             using (var model = new DataModel())
-                return model.Grad.Find(cityID)?.DrzavaID == countryID;
+                return model.Grad
+                    .Include("Drzava")
+                    .FirstOrDefault(grad => grad.IDGrad == cityID)?.Drzava;
+        }
+
+        public static Drzava GetCountry(int? countryID) {
+            using (var model = new DataModel())
+                return model.Drzava.Find(countryID);
+        }
+
+        public static bool CityIsFromCountry(int cityID, int countryID, out Drzava country) {
+            using (var model = new DataModel()) {
+                var city = model.Grad.Find(cityID);
+
+                if (city?.DrzavaID == countryID) {
+                    country = city?.Drzava;
+                    return true;
+                } else {
+                    country = model.Drzava.Find(countryID);
+                    return false;
+                }
+            }
         }
 
         //public static List<Racun> GetRacuniForKupac(int kupacID) {

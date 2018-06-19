@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Bill.cs" />
+    <Compile Include="ViewModels\BillSort.cs" />
     <Compile Include="ViewModels\ViewItemsViewModel.cs" />
     <Compile Include="ViewModels\Entities\CustomerViewModel.cs" />
     <Compile Include="Models\Item.cs" />

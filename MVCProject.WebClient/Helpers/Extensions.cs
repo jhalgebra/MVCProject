@@ -13,8 +13,6 @@ namespace MVCProject.WebClient {
             RouteInfo<T> editButtonRoute,
             params string[] headers
         ) {
-            bool addEditButton = editButtonRoute != null;
-
             var properties = Utils.GetProperties<T>(propertiesToSkip);
 
             //<div class="divClass"></div>
@@ -42,7 +40,7 @@ namespace MVCProject.WebClient {
                 headerRow.InnerHtml += th.ToString();
             }
 
-            if (addEditButton)
+            if (editButtonRoute != null)
                 headerRow.InnerHtml += new TagBuilder("th").ToString();
 
             table.InnerHtml += headerRow.ToString();
@@ -53,23 +51,25 @@ namespace MVCProject.WebClient {
                 //  <td></td>
                 //</tr>
                 var row = new TagBuilder("tr");
-                row.MergeAttribute("onclick", $@"location.href = '{Utils.UrlHelper.Action(
-                    actionName: trClickRoute.ActionName,
-                    controllerName: trClickRoute.ControllerName,
-                    routeValues: trClickRoute.RouteValues?.Invoke(item)
-                )}'");
 
-                foreach(var property in properties) {
+                if (trClickRoute != null)
+                    row.MergeAttribute("onclick", $@"location.href = '{Utils.UrlHelper.Action(
+                        actionName: trClickRoute.ActionName,
+                        controllerName: trClickRoute.ControllerName,
+                        routeValues: trClickRoute.RouteValues?.Invoke(item)
+                    )}'");
+
+                foreach (var property in properties) {
                     //<td>Gustavo</td>
                     var td = new TagBuilder("td");
-                    td.SetInnerText(property.GetValue(item).ToString());
+                    td.SetInnerText(Utils.GetValue(property, item).ToString());
 
                     row.InnerHtml += td.ToString();
                 }
 
-                if (addEditButton) {
+                if (editButtonRoute != null) {
                     var editButtonTD = new TagBuilder("td");
-                    
+
                     var button = new TagBuilder("a");
                     button.AddCssClass("btn btn-primary");
                     button.MergeAttribute("href", Utils.UrlHelper.Action(
@@ -84,7 +84,7 @@ namespace MVCProject.WebClient {
                 }
 
                 table.InnerHtml += row.ToString();
-            }
+            } //foreach (<tr>)
 
             mainDiv.InnerHtml += table.ToString();
 

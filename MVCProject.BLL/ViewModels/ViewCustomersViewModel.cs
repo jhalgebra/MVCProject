@@ -27,10 +27,10 @@ namespace MVCProject.BLL {
 
         public List<CustomerViewModel> GetCustomers() {
             return Repository.GetCustomersForCity(
-                Repository.CityIsFromCountry(CityID.Value, CountryID.Value)
+                Repository.CityIsFromCountry(CityID.Value, CountryID.Value, out Drzava country)
                 ? CityID.Value
                 : GetFirstCityID(CountryID.Value))
-                    .Select(kupac => CustomerViewModel.FromKupac(kupac, CountryID.Value))
+                    .Select(kupac => CustomerViewModel.FromKupac(kupac, country))
                     .ToList();
         }
 

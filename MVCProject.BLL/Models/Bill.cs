@@ -13,7 +13,7 @@ namespace MVCProject.BLL {
             ID = id;
         }
 
-        public static Bill FromRacun(Racun racun) 
+        public static Bill FromRacun(Racun racun)
             => new Bill(racun.IDRacun) {
                 DateIssued = racun.DatumIzdavanja,
                 Number = racun.BrojRacuna,
@@ -23,10 +23,10 @@ namespace MVCProject.BLL {
                 },
                 CreditCard = new CreditCard {
                     ExpiryDate = new DateTime(
-                        racun.KreditnaKartica.IstekGodina,
-                        racun.KreditnaKartica.IstekMjesec,
-                        1
-                    ),
+                       racun.KreditnaKartica.IstekGodina,
+                       racun.KreditnaKartica.IstekMjesec,
+                       1
+                   ),
                     Number = racun.KreditnaKartica.Broj,
                     Type = racun.KreditnaKartica.Tip
                 }

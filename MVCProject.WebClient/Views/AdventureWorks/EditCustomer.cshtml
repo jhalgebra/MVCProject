@@ -1,20 +1,19 @@
 ﻿@model MVCProject.BLL.EditCustomerViewModel
 
 @{
-    ViewBag.Title = "EditCustomer";
-
-    //if (Model == null) {
-    //    Response.Redirect("~/AdventureWorks/Index");
-    //}
+    ViewBag.Title = "Edit Customer";
 }
 
 <h2>Edit <span class="text-info">@(Model?.Customer.Name ?? "Customer")</span></h2>
 
-
-@using (Html.BeginForm())
-{
+@using (Html.BeginForm(
+    actionName: "FinishCustomerEdit",
+    controllerName: "AdventureWorks"
+)) {
     @Html.AntiForgeryToken()
-    
+
+    @Html.HiddenFor(model => model.Customer.ID)
+
     <div class="form-horizontal">
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
@@ -50,21 +49,36 @@
             </div>
         </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.Customer.CityID, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Customer.CityID, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Customer.CityID, "", new { @class = "text-danger" })
-            </div>
-        </div>
+        @using (Html.BeginForm()) {
+            <div class="form-group">
+                @Html.LabelFor(model => model.Customer.CityID, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(
+                             model => model.Customer.CityID,
+                             selectList: Model.GetGradovi().Select(city => new SelectListItem {
+                                 Text = city.Naziv,
+                                 Value = city.IDGrad.ToString()
+                             }),
+                             htmlAttributes: new { @class = "form-control" }
+                         )
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.Customer.CountryID, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Customer.CountryID, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Customer.CountryID, "", new { @class = "text-danger" })
+                    @Html.ValidationMessageFor(model => model.Customer.CityID, "", new { @class = "text-danger" })
+                </div>
             </div>
-        </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Customer.CountryID, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(
+                             model => model.Customer.CountryID,
+                             selectList: new SelectList(Model.GetDrzave(), "IDDrzava", "Naziv"),
+                             htmlAttributes: new { @class = "form-control" }
+                         )
+
+                    @Html.ValidationMessageFor(model => model.Customer.CountryID, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        }
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
@@ -80,4 +94,65 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $(function () {
+            var $ddlCities = $("#Customer_CityID");
+            var $ddlCountries = $("#Customer_CountryID");
+
+            $ddlCities.change(selectionChanged);
+            $ddlCountries.change(selectionChanged);
+
+            function selectionChanged() {
+                var value = $(this).val();
+                var cityChanged = $(this)[0] == $ddlCities[0];
+                var countryChanged = $(this)[0] == $ddlCountries[0];
+
+                var actionUrl = "@Url.Action(
+                    actionName: "EditCustomer",
+                    controllerName: "AdventureWorks"
+                )";
+
+                var parameters = "?customerID=" + $("#Customer_ID").val();
+
+                if (!(cityChanged || countryChanged))
+                    return;
+
+                parameters += "&id=";
+
+                if (cityChanged)
+                    parameters += $ddlCities.val() + "&country=False";
+                else
+                    parameters += $ddlCountries.val() + "&country=True";
+
+                console.log(actionUrl + parameters);
+
+                $.post(actionUrl + parameters, function (response) {
+                    console.log(response.Countries);
+                    console.log(response.Cities);
+
+                    $ddlCountries.empty();
+                    var countries = response.Countries;
+                    for (var i = 0; i < countries.length; i++)
+                        $ddlCountries.append($("<option>", {
+                            value: countries[i].Key,
+                            text: countries[i].Value
+                        }));
+
+                    $ddlCountries.val(response.CountryID);
+
+                    $ddlCities.empty();
+                    var cities = response.Cities;
+                    for (var i = 0; i < cities.length; i++)
+                        $ddlCities.append($("<option>", {
+                            value: cities[i].Key,
+                            text: cities[i].Value
+                        }));
+
+                    console.log($ddlCities[0], response.CityID);
+                    $ddlCities.val(response.CityID);
+                });
+            }
+        });
+    </script>
 }

@@ -1,0 +1,16 @@
+﻿@model MVCProject.BLL.ViewItemsViewModel
+
+@{
+    ViewBag.Title = "View Items";
+}
+
+<h2>View Items</h2>
+
+@Html.Table(
+    data: Model.Items,
+    propertiesToSkip: new[] { "ID" },
+    divClass: "items",
+    tableClass: "table table-condensed table-hover",
+    headers: new[] { "Quantity", "Cost per unit", "Discount (%)", "Total price", "Product name", "Number",
+    "Color", "Minimal stored quantity", "Price without VAT", "Category", "Subcategory" }
+)

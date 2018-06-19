@@ -3,7 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MVCProject.BLL {
     public class CustomerViewModel {
-        public int ID { get; }
+        [Required]
+        public int ID { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -22,23 +23,29 @@ namespace MVCProject.BLL {
         [Required]
         [Display(Name = "City")]
         public int CityID { get; set; }
+        public string City { get; set; }
 
         [Required]
         [Display(Name = "Country")]
         public int CountryID { get; set; }
+        public string Country { get; set; }
+
+        public CustomerViewModel() { }
 
         public CustomerViewModel(int id) {
             ID = id;
         }
 
-        public static CustomerViewModel FromKupac(Kupac kupac, int countryID) 
+        public static CustomerViewModel FromKupac(Kupac kupac, Drzava country) 
             => new CustomerViewModel(kupac.IDKupac) {
                 Name = kupac.Ime,
                 Surname = kupac.Prezime,
                 Email = kupac.Email,
                 Telephone = kupac.Telefon,
                 CityID = kupac.GradID ?? -1,
-                CountryID = countryID
+                City = kupac.Grad.Naziv,
+                CountryID = country.IDDrzava,
+                Country = country.Naziv
             };
     }
 }

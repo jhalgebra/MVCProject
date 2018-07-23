@@ -3,6 +3,14 @@
 
 @{
     ViewBag.Title = "View Customer Data";
+
+    var editButtonRoute = User.IsInRole("Administrator")
+        ? new RouteInfo<CustomerViewModel> {
+            ActionName = "EditCustomer",
+            ControllerName = "AdventureWorks",
+            RouteValues = item => new { customerID = item.ID }
+        }
+        : null;
 }
 
 <h2>View Customer Data</h2>
@@ -17,10 +25,10 @@
                 Text = country.Naziv,
                 Value = country.IDDrzava.ToString()
             }),
-            htmlAttributes: new { @class = "form-control", onchange = "this.form.submit();" }
+            htmlAttributes: new { @class = "form-control" }
         )
     </div>
-
+    
     <div class="form-group col-md-6">
         @Html.Label("City")
         @Html.DropDownListFor(
@@ -29,26 +37,64 @@
                 Text = city.Naziv,
                 Value = city.IDGrad.ToString()
             }),
-            htmlAttributes: new { @class = "form-control", onchange = "this.form.submit();" }
+            htmlAttributes: new { @class = "form-control" }
         )
     </div>
 </div>
 }
 
 @Html.Table(
-    data: Model.GetCustomers(),
+    data: Model.Customers,
     propertiesToSkip: new[] { "ID", "CityID", "CountryID" },
+    rowIDProperty: "ID",
     divClass: "customers",
     tableClass: "table table-hover",
-    trClickRoute: new RouteInfo<CustomerViewModel> {
-        ActionName = "ViewBills",
+    trClickRoute: null,
+    editButtonRoute: editButtonRoute,
+    pagerRoute: new RouteInfo<int> {
+        ActionName = "ViewCustomerData",
         ControllerName = "AdventureWorks",
-        RouteValues = item => new { customerID = item.ID }
-    },
-    editButtonRoute: new RouteInfo<CustomerViewModel> {
-        ActionName = "EditCustomer",
-        ControllerName = "AdventureWorks",
-        RouteValues = item => new { customerID = item.ID }
+        RouteValues = page => new { cityID = Model.CityID, countryID = Model.CountryID, page }
     },
     headers: new[] { "Name", "Surname", "Email", "Telephone", "City", "Country" }
 )
+
+@section scripts{
+    <script>
+        $(function () {
+            bindTrClick();
+
+            $("#CityID, #CountryID").change(function (e) {
+                $("form").submit();
+            });
+        })
+        
+        function bindTrClick() {
+            $("tr a").click(function () {
+                hideModal();
+            })
+
+            $("tr a").click(function (e) {
+                event.stopPropagation();
+            })
+
+            $("tr").click(function (e) {
+                $.post(
+                    "@Url.Action(
+                        actionName: "CheckBills",
+                        controllerName: "AdventureWorks"
+                    )",
+                    {
+                        customerID: $(this).attr("id")
+                    },
+                    data => {
+                        if (data.Error)
+                            showModal(data.Title, data.Body, "OK");
+                        else
+                            location.href = data.RedirectUrl;
+                    }
+                );
+            });
+        }
+    </script>
+}

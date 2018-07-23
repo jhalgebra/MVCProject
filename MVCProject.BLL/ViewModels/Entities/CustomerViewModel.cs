@@ -1,4 +1,5 @@
 ﻿using MVCProject.DAL;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace MVCProject.BLL {
@@ -30,14 +31,9 @@ namespace MVCProject.BLL {
         public int CountryID { get; set; }
         public string Country { get; set; }
 
-        public CustomerViewModel() { }
-
-        public CustomerViewModel(int id) {
-            ID = id;
-        }
-
         public static CustomerViewModel FromKupac(Kupac kupac, Drzava country) 
-            => new CustomerViewModel(kupac.IDKupac) {
+            => new CustomerViewModel {
+                ID = kupac.IDKupac,
                 Name = kupac.Ime,
                 Surname = kupac.Prezime,
                 Email = kupac.Email,
@@ -47,5 +43,12 @@ namespace MVCProject.BLL {
                 CountryID = country.IDDrzava,
                 Country = country.Naziv
             };
+        public static CustomerViewModel FromKupac(Kupac kupac) => FromKupac(
+            kupac,
+            Repository.GetCountryByCityID(kupac.GradID)
+        );
+
+        public override string ToString() => $"{Name} {Surname}";
+
     }
 }

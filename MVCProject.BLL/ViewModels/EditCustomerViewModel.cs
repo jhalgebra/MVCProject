@@ -11,7 +11,7 @@ namespace MVCProject.BLL {
         public EditCustomerViewModel(int customerID) {
             var kupac = Repository.GetCustomer(customerID);
 
-            Customer = CustomerViewModel.FromKupac(kupac, Repository.GetCountryByCityID(kupac.GradID));
+            Customer = CustomerViewModel.FromKupac(kupac);
         }
 
         public EditCustomerViewModel(int customerID, int countryID) {
@@ -23,8 +23,8 @@ namespace MVCProject.BLL {
             Customer = CustomerViewModel.FromKupac(kupac, country);
         }
 
-        public void UpdateCustomer() {
-            Repository.UpdateCustomer(new Kupac {
+        public bool UpdateCustomer() {
+            return Repository.UpdateCustomer(new Kupac {
                 IDKupac = Customer.ID,
                 Email = Customer.Email,
                 GradID = Customer.CityID,
@@ -33,6 +33,17 @@ namespace MVCProject.BLL {
                 Telefon = Customer.Telephone
             });
         }
+
+        public List<CustomerViewModel> GetCustomers()
+            => Repository.GetCustomers()
+                .Select(customer => CustomerViewModel.FromKupac(customer))
+                //.Take(10)
+                .ToList();
+
+        public List<CustomerViewModel> GetCustomersInCurrentLocation()
+            => Repository.GetCustomersFrom(Customer.CityID, Customer.CountryID)
+                            .Select(kupac => CustomerViewModel.FromKupac(kupac))
+                            .ToList();
 
         public IEnumerable<KeyValuePair<int, string>> GetCities()
             => GetGradovi().Select(grad => new KeyValuePair<int, string>(grad.IDGrad, grad.Naziv));
@@ -44,5 +55,8 @@ namespace MVCProject.BLL {
 
         public IEnumerable<KeyValuePair<int, string>> GetCountries()
             => GetDrzave().Select(drzava => new KeyValuePair<int, string>(drzava.IDDrzava, drzava.Naziv));
+
+        //public static CustomerViewModel GetCustomer(int customerID)
+        //    => CustomerViewModel.FromKupac(Repository.GetCustomer(customerID));
     }
 }

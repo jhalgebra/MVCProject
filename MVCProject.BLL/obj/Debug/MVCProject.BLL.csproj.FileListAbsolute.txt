@@ -10,3 +10,15 @@ C:\Users\josiph.TECHED\Desktop\MVCProject\MVCProject.BLL\obj\Debug\MVCProject.BL
 C:\Users\josiph.TECHED\Desktop\MVCProject\MVCProject.BLL\obj\Debug\MVCProject.BLL.csproj.CopyComplete
 C:\Users\josiph.TECHED\Desktop\MVCProject\MVCProject.BLL\obj\Debug\MVCProject.BLL.dll
 C:\Users\josiph.TECHED\Desktop\MVCProject\MVCProject.BLL\obj\Debug\MVCProject.BLL.pdb
+D:\Windows Folders\Desktop\MVCProject\MVCProject.BLL\bin\Debug\MVCProject.BLL.dll
+D:\Windows Folders\Desktop\MVCProject\MVCProject.BLL\bin\Debug\MVCProject.BLL.pdb
+D:\Windows Folders\Desktop\MVCProject\MVCProject.BLL\bin\Debug\MVCProject.DAL.dll
+D:\Windows Folders\Desktop\MVCProject\MVCProject.BLL\bin\Debug\EntityFramework.dll
+D:\Windows Folders\Desktop\MVCProject\MVCProject.BLL\bin\Debug\MVCProject.DAL.pdb
+D:\Windows Folders\Desktop\MVCProject\MVCProject.BLL\bin\Debug\MVCProject.DAL.dll.config
+D:\Windows Folders\Desktop\MVCProject\MVCProject.BLL\bin\Debug\EntityFramework.xml
+D:\Windows Folders\Desktop\MVCProject\MVCProject.BLL\obj\Debug\MVCProject.BLL.csprojResolveAssemblyReference.cache
+D:\Windows Folders\Desktop\MVCProject\MVCProject.BLL\obj\Debug\MVCProject.BLL.csproj.CoreCompileInputs.cache
+D:\Windows Folders\Desktop\MVCProject\MVCProject.BLL\obj\Debug\MVCProject.BLL.csproj.CopyComplete
+D:\Windows Folders\Desktop\MVCProject\MVCProject.BLL\obj\Debug\MVCProject.BLL.dll
+D:\Windows Folders\Desktop\MVCProject\MVCProject.BLL\obj\Debug\MVCProject.BLL.pdb

@@ -4,31 +4,97 @@ using System.Linq;
 
 using MVCProject.DAL;
 
-namespace MVCProject.BLL {
-    public class ViewBillsViewModel {
-        #region Properties
+namespace MVCProject.BLL
+{
+    public class ViewBillsViewModel
+    {
+        #region Fields
 
-        public int CustomerID { get; set; }
-        public BillSort Sort { get; set; }
-        public bool AscendingSort { get; set; }
+        private int customerID;
+        private BillSort sort;
+        private bool ascendingSort;
 
         #endregion
 
-        #region Methods
+        #region Properties
 
-        public List<Bill> GetBills() => SortBills(
-            Repository.GetBillsForCustomer(CustomerID)
-            .Select(racun => Bill.FromRacun(racun))
-        ).ToList();
+        public int CustomerID
+        {
+            get => customerID;
+            set
+            {
+                if (customerID == value)
+                    return;
 
-        private IEnumerable<Bill> SortBills(IEnumerable<Bill> bills) {
+                customerID = value;
+                SortBills();
+            }
+        }
+        public BillSort Sort
+        {
+            get => sort;
+            set
+            {
+                if (sort != value)
+                {
+                    sort = value;
+                    SortBills();
+                }
+            }
+        }
+        public bool AscendingSort
+        {
+            get => ascendingSort;
+            set
+            {
+                if (ascendingSort != value)
+                {
+                    ascendingSort = value;
+                    SortBills();
+                }
+            }
+        }
+
+        public PagedList<Bill> Bills { get; }
+
+        #endregion
+
+        #region Constructors
+
+        public ViewBillsViewModel(int currentPage)
+        {
+
+            Bills = new PagedList<Bill>(null)
+            {
+                CurrentPage = currentPage
+            };
+        }
+
+        public ViewBillsViewModel() : this(1) { } 
+
+        #endregion
+
+        #region Sort helpers
+
+        private void SortBills()
+        {
+            Bills.SetCollection(SortBills(
+                Repository.GetBillsForCustomer(CustomerID)
+                .Select(racun => Bill.FromRacun(racun))
+            ).ToList());
+        }
+
+        private IEnumerable<Bill> SortBills(IEnumerable<Bill> bills)
+        {
             return AscendingSort
                 ? bills.OrderBy(KeySelector)
                 : bills.OrderByDescending(KeySelector);
         }
 
-        private object KeySelector(Bill bill) {
-            switch (Sort) {
+        private object KeySelector(Bill bill)
+        {
+            switch (Sort)
+            {
 
                 case BillSort.Date:
                     return bill.DateIssued;
@@ -43,7 +109,7 @@ namespace MVCProject.BLL {
                     throw new Exception($"Uknown {nameof(BillSort)} enumeration");
 
             }
-        }
+        } 
 
         #endregion
     }

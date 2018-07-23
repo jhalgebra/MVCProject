@@ -1,15 +1,21 @@
-﻿using MVCProject.DAL;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
+
+using MVCProject.DAL;
 
 namespace MVCProject.BLL {
     public class ViewItemsViewModel {
-        public List<Item> Items { get; }
+        public int BillID { get; }
+        public PagedList<Item> Items { get; }
 
-        public ViewItemsViewModel(int billID) {
-            Items = Repository.GetItemsForBill(billID)
+        public ViewItemsViewModel(int billID, int page) {
+            BillID = billID;
+
+            Items = new PagedList<Item>(Repository.GetItemsForBill(billID)
                 .Select(stavka => Item.FromStavka(stavka))
-                .ToList();
+            )
+            {
+                CurrentPage = page
+            };
         }
     }
 }

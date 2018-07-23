@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using MVCProject.WebClient.Models;
@@ -139,7 +140,12 @@ namespace MVCProject.WebClient.Controllers
         [AllowAnonymous]
         public ActionResult Register()
         {
-            return View();
+            var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());
+            var roleManager = new RoleManager<IdentityRole>(roleStore);
+            
+            return View(new RegisterViewModel {
+                Roles = roleManager.Roles.Select(role => role.Name).ToList()
+            });
         }
 
         //
@@ -152,20 +158,41 @@ namespace MVCProject.WebClient.Controllers
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-                var result = await UserManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
-                    
-                    // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
-                    // Send an email with this link
-                    // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
-                    // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                    // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+                IdentityResult userResult = await UserManager.CreateAsync(user, model.Password);
+                IdentityResult roleResult = null;
 
-                    return RedirectToAction("Index", "Home");
+                if (userResult.Succeeded)
+                {
+                    /*
+                    //privremeni kod za generiranje role
+                    var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext()); //referenca na mjesto gdje se pohranjuje rola
+                    var roleManager = new RoleManager<IdentityRole>(roleStore);
+
+                    //kreiranje role
+                    await roleManager.CreateAsync(new IdentityRole("Administrator"));
+
+                    //dodavanje usera u rolu
+                    await UserManager.AddToRoleAsync(user.Id, "Administrator");
+                    */
+
+                    var currentUser = await UserManager.FindByNameAsync(user.UserName);
+                    roleResult = await UserManager.AddToRoleAsync(currentUser.Id, model.Role);
+
+                    if (roleResult.Succeeded) {
+                        await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+
+                        // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
+                        // Send an email with this link
+                        // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+                        // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                        // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+
+                        return RedirectToAction("Index", "AdventureWorks");
+                    }
                 }
-                AddErrors(result);
+
+                AddErrors(userResult);
+                AddErrors(roleResult);
             }
 
             // If we got this far, something failed, redisplay form
@@ -392,7 +419,7 @@ namespace MVCProject.WebClient.Controllers
         public ActionResult LogOff()
         {
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "AdventureWorks");
         }
 
         //
@@ -449,7 +476,7 @@ namespace MVCProject.WebClient.Controllers
             {
                 return Redirect(returnUrl);
             }
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "AdventureWorks");
         }
 
         internal class ChallengeResult : HttpUnauthorizedResult

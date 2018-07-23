@@ -1,16 +1,31 @@
-﻿@model MVCProject.BLL.ViewItemsViewModel
+﻿@using MVCProject.BLL
+@model ViewItemsViewModel
 
 @{
-    ViewBag.Title = "View Items";
+    ViewBag.Title = "Items";
 }
 
-<h2>View Items</h2>
+<style>
+    td:hover{
+        cursor: default;
+    }
+</style>
+
+<h2>Items</h2>
+<br />
 
 @Html.Table(
-    data: Model.Items,
+    data: @Model.Items,
     propertiesToSkip: new[] { "ID" },
+    rowIDProperty: "ID",
     divClass: "items",
     tableClass: "table table-condensed table-hover",
+    pagerRoute: new RouteInfo<int>
+    {
+        ControllerName = "AdventureWorks",
+        ActionName = "ViewItems",
+        RouteValues = page => new { billID = Model.BillID, page }
+    },
     headers: new[] { "Quantity", "Cost per unit", "Discount (%)", "Total price", "Product name", "Number",
     "Color", "Minimal stored quantity", "Price without VAT", "Category", "Subcategory" }
 )

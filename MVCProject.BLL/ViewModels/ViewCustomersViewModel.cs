@@ -1,17 +1,38 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+
 using MVCProject.DAL;
 
 namespace MVCProject.BLL {
     public class ViewCustomersViewModel {
-        public int? CityID {
-            get;
-            set;
+        private int cityID, countryID;
+
+        public int CountryID {
+            get => countryID;
+            set {
+                if (countryID == value)
+                    return;
+
+                countryID = value;
+                CityID = GetFirstCityID();
+            }
         }
-        public int? CountryID {
-            get;
-            set;
+
+        public int CityID {
+            get => cityID;
+            set {
+                if (cityID == value)
+                    return;
+
+                cityID = value;
+                Customers = new PagedList<CustomerViewModel>(GetCustomers()) {
+                    //PageSize = 20,
+                    CurrentPage = 1
+                };
+            }
         }
+
+        public PagedList<CustomerViewModel> Customers { get; private set; }
 
         public ViewCustomersViewModel() {
             Countries = Repository.GetCountries();
@@ -19,25 +40,25 @@ namespace MVCProject.BLL {
             if (Countries.Count == 0)
                 return;
 
-            var first = Countries[0];
-            CountryID = first.IDDrzava;
-
-            CityID = GetFirstCityID(first.IDDrzava);
+            CountryID = Countries[0].IDDrzava;
         }
 
-        public List<CustomerViewModel> GetCustomers() {
+        private List<CustomerViewModel> GetCustomers() {
             return Repository.GetCustomersForCity(
-                Repository.CityIsFromCountry(CityID.Value, CountryID.Value, out Drzava country)
-                ? CityID.Value
-                : GetFirstCityID(CountryID.Value))
+                Repository.CityIsFromCountry(cityID, countryID, out Drzava country)
+                ? cityID
+                : GetFirstCityID())
                     .Select(kupac => CustomerViewModel.FromKupac(kupac, country))
                     .ToList();
         }
 
+        private int GetFirstCityID()
+            => Repository.GetCitiesForCountry(countryID).First().IDGrad;
+
         private int GetFirstCityID(int countryID)
             => Repository.GetCitiesForCountry(countryID).First().IDGrad;
 
-        public List<Grad> Cities => Repository.GetCitiesForCountry(CountryID.Value);
+        public List<Grad> Cities => Repository.GetCitiesForCountry(countryID);
 
         public List<Drzava> Countries { get; }
     }

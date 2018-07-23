@@ -7,7 +7,7 @@
 
 <h2>View Bills</h2>
 
-
+@Html.HiddenFor(model => model.CustomerID)
 
 @using (Html.BeginForm()) {
 
@@ -17,7 +17,7 @@
             @Html.DropDownListFor(
                 model => model.Sort,
                 selectList: Utils.GetBillSortMethods(),
-                htmlAttributes: new { @class = "form-control", onchange = "this.form.submit();" }
+                htmlAttributes: new { @class = "form-control" }
             )
         </div>
 
@@ -26,23 +26,59 @@
             @Html.DropDownListFor(
                 model => model.AscendingSort,
                 selectList: Utils.GetSortDirections(),
-                htmlAttributes: new { @class = "form-control", onchange = "this.form.submit();" }
+                htmlAttributes: new { @class = "form-control" }
             )
         </div>
     </div>
 
-    @Html.Table(
-                data: Model.GetBills(),
-                propertiesToSkip: new[] { "ID", "FullTime" },
-                divClass: "bills",
-                tableClass: "table table-hover",
-                trClickRoute: new RouteInfo<Bill> {
-                    ActionName = "ViewItems",
-                    ControllerName = "AdventureWorks",
-                    RouteValues = item => new { billID = item.ID }
-                },
-                headers: new[] { "Date Issued", "Number", "Commercialist's name", "Credit Card Type",
-"Credit Card Number", "Credit Card Expiration Date" }
-            )
+}
 
+@Html.Table(
+    data: Model.Bills,
+    propertiesToSkip: new[] { "ID", "FullTime" },
+    rowIDProperty: "ID",
+    divClass: "bills",
+    tableClass: "table table-hover",
+    trClickRoute: null,
+    pagerRoute: new RouteInfo<int> {
+        ControllerName = "AdventureWorks",
+        ActionName = "ViewBills",
+        RouteValues = page => new { customerID = @Model.CustomerID, page }
+    },
+    headers: new[] { "Date Issued", "Number", "Commercialist's name", "Credit Card Type",
+"Credit Card Number", "Credit Card Expiration Date" }
+)
+
+@section scripts{
+    <script>
+        $(function () {
+            bindTrClick();
+
+            $("#Sort, #AscendingSort").change(function (e) {
+                $("form").submit();
+            });
+        });
+
+        function bindTrClick() {
+            $("tr").click(function (e) {
+                $.post(
+                    "@Url.Action(
+                        actionName: "CheckItems",
+                        controllerName: "AdventureWorks"
+                    )",
+                    {
+                        customerID: @Model.CustomerID,
+                        billID: $(this).attr("id")
+                    },
+                    function (data) {
+                        console.log(data);
+                        if (data.Error)
+                            showModal(data.Title, data.Body, "OK");
+                        else
+                            location.href = data.RedirectUrl
+                    }
+                );
+            });
+        }
+    </script>
 }

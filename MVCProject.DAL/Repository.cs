@@ -35,7 +35,7 @@ namespace MVCProject.DAL {
             }
         }
 
-        public static void UpdateCustomer(Kupac customer) {
+        public static bool UpdateCustomer(Kupac customer) {
             using(var model = new DataModel()) {
                 var kupac = model.Kupac.Find(customer.IDKupac);
 
@@ -45,7 +45,7 @@ namespace MVCProject.DAL {
                 kupac.Prezime = customer.Prezime;
                 kupac.Telefon = customer.Telefon;
 
-                model.SaveChanges();
+                return model.SaveChanges() > 0;
             }
         }
 
@@ -54,6 +54,19 @@ namespace MVCProject.DAL {
                 return model.Kupac
                     .Include("Grad")
                     .Where(kupac => kupac.GradID == cityID)
+                    .ToList();
+        }
+
+        public static List<Kupac> GetCustomers() {
+            using (var model = new DataModel())
+                return model.Kupac.Include("Grad").ToList();
+        }
+
+        public static List<Kupac> GetCustomersFrom(int cityID, int countryID) {
+            using (var model = new DataModel()) 
+                return model.Kupac
+                    .Include("Grad")
+                    .Where(kupac => kupac.GradID == cityID && kupac.Grad.DrzavaID == countryID)
                     .ToList();
         }
 

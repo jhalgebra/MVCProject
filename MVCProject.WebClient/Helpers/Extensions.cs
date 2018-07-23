@@ -1,19 +1,42 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Web.Mvc;
+
+using MVCProject.BLL;
 
 namespace MVCProject.WebClient {
     public static class Extensions {
+        private const int maxPageCount = 10;
+        private const int pagerLeft = 5;
+        private const int pagerRight = 4;
+
         public static MvcHtmlString Table<T>(
             this HtmlHelper helper,
-            List<T> data,
+            PagedList<T> data,
             string[] propertiesToSkip,
+            string rowIDProperty,
             string divClass,
             string tableClass,
             RouteInfo<T> trClickRoute,
             RouteInfo<T> editButtonRoute,
+            RouteInfo<int> pagerRoute,
             params string[] headers
         ) {
-            var properties = Utils.GetProperties<T>(propertiesToSkip);
+            //All properties of type T
+            var properties = Utils.GetProperties<T>();
+            //Properties that are displayed (exclusions are in parameter propertiesToSkip)
+            var displayProperties = new List<PropertyInfo>();
+            //Property whose value will be put into tr's id attribute
+            PropertyInfo idProperty = null;
+
+            foreach (var prop in properties) {
+                if (!propertiesToSkip.Contains(prop.Name))
+                    displayProperties.Add(prop);
+
+                if (prop.Name == rowIDProperty)
+                    idProperty = prop;
+            }
 
             //<div class="divClass"></div>
             var mainDiv = new TagBuilder("div");
@@ -45,38 +68,33 @@ namespace MVCProject.WebClient {
 
             table.InnerHtml += headerRow.ToString();
 
-            foreach (var item in data) {
+            foreach (var item in data.GetItemsFromCurrentPage()) {
                 //<tr>
                 //  <td></td>
                 //  <td></td>
                 //</tr>
                 var row = new TagBuilder("tr");
 
-                if (trClickRoute != null)
-                    row.MergeAttribute("onclick", $@"location.href = '{Utils.UrlHelper.Action(
-                        actionName: trClickRoute.ActionName,
-                        controllerName: trClickRoute.ControllerName,
-                        routeValues: trClickRoute.RouteValues?.Invoke(item)
-                    )}'");
+                if (trClickRoute.Check(item))
+                    row.MergeAttribute("onclick", $@"location.href = '{trClickRoute.GetActionUrl(item)}'");
 
-                foreach (var property in properties) {
+                if (idProperty != null)
+                    row.MergeAttribute("id", Utils.GetValue(idProperty, item)?.ToString());
+
+                foreach (var property in displayProperties) {
                     //<td>Gustavo</td>
                     var td = new TagBuilder("td");
-                    td.SetInnerText(Utils.GetValue(property, item).ToString());
+                    td.SetInnerText(Utils.GetValue(property, item)?.ToString());
 
                     row.InnerHtml += td.ToString();
                 }
 
-                if (editButtonRoute != null) {
+                if (editButtonRoute.Check(item)) {
                     var editButtonTD = new TagBuilder("td");
 
                     var button = new TagBuilder("a");
                     button.AddCssClass("btn btn-primary");
-                    button.MergeAttribute("href", Utils.UrlHelper.Action(
-                        actionName: editButtonRoute.ActionName,
-                        controllerName: editButtonRoute.ControllerName,
-                        routeValues: editButtonRoute.RouteValues?.Invoke(item)
-                    ));
+                    button.MergeAttribute("href", editButtonRoute.GetActionUrl(item));
                     button.SetInnerText("Edit");
 
                     editButtonTD.InnerHtml += button.ToString();
@@ -86,28 +104,103 @@ namespace MVCProject.WebClient {
                 table.InnerHtml += row.ToString();
             } //foreach (<tr>)
 
+            var pager = new TagBuilder("div");
+            pager.MergeAttribute("class", "pager");
+
+            var buttonGroup = new TagBuilder("div");
+            buttonGroup.MergeAttribute("class", "btn-group");
+
+            #region Pager Logic
+
+            var left = data.CurrentPage > pagerLeft + 1;
+            var right = data.PageCount > maxPageCount && (data.PageCount - data.CurrentPage) > pagerRight;
+
+            if (left)
+                pager.InnerHtml += PagerButton("<<", 1, true, pagerRoute);
+
+            var start = data.CurrentPage <= pagerLeft ? 1 : data.CurrentPage - pagerLeft;
+            var end = start + maxPageCount - 1;
+
+            var endDiff = data.PageCount - end;
+
+            if(endDiff < 0)
+            {
+                start += endDiff;
+                end = data.PageCount;
+
+                if (start < 1)
+                    start = 1;
+            }
+
+            if ((right || (end - start + 1 < maxPageCount)) && !data.HasPageOverflow)
+                end--;
+
+            for (int i = start; i <= end; i++)
+                buttonGroup.InnerHtml += PagerButton(i, i == data.CurrentPage, pagerRoute);
+
+            pager.InnerHtml += buttonGroup.ToString();
+
+            if (right)
+                pager.InnerHtml += PagerButton(">>", data.PageCount, true, pagerRoute);
+
+            #endregion
+
             mainDiv.InnerHtml += table.ToString();
+            mainDiv.InnerHtml += pager.ToString();
 
             return new MvcHtmlString(mainDiv.ToString());
         }
 
         public static MvcHtmlString Table<T>(
             this HtmlHelper helper,
-            List<T> data,
+            PagedList<T> data,
             string[] propertiesToSkip,
+            string rowIDProperty,
             string divClass,
             string tableClass,
             RouteInfo<T> trClickRoute,
+            RouteInfo<int> pagerRoute,
             params string[] headers
-        ) => helper.Table(data, propertiesToSkip, divClass, tableClass, trClickRoute, null, headers);
+        ) => helper.Table(data, propertiesToSkip, rowIDProperty, divClass, tableClass, trClickRoute, null, pagerRoute, headers);
 
         public static MvcHtmlString Table<T>(
             this HtmlHelper helper,
-            List<T> data,
+            PagedList<T> data,
             string[] propertiesToSkip,
+            string rowIDProperty,
             string divClass,
             string tableClass,
+            RouteInfo<int> pagerRoute,
             params string[] headers
-        ) => helper.Table(data, propertiesToSkip, divClass, tableClass, null, null, headers);
+        ) => helper.Table(data, propertiesToSkip, rowIDProperty, divClass, tableClass, null, null, pagerRoute, headers);
+
+        #region Table helpers
+
+        private static string PagerButton(string content, int page, bool primary, RouteInfo<int> pagerRoute) {
+            var button = new TagBuilder("a");
+
+            button.MergeAttribute("class", primary
+                ? "btn btn-primary"
+                : "btn btn-default");
+
+            button.SetInnerText(content);
+
+            if (pagerRoute.Check(page))
+                button.MergeAttribute("href", pagerRoute.GetActionUrl(page));
+
+            return button.ToString();
+        }
+
+        private static string PagerButton(int page, bool primary, RouteInfo<int> pagerRoute)
+            => PagerButton(page.ToString(), page, primary, pagerRoute); 
+
+        #endregion
+
+        public static bool Check<T>(this RouteInfo<T> routeInfo, T item) {
+            if (routeInfo == null)
+                return false;
+
+            return routeInfo.PreRedirectCheck?.Invoke(item) != false;
+        }
     }
 }

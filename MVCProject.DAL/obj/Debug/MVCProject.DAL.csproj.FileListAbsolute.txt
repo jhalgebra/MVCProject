@@ -22,3 +22,15 @@ D:\Windows Folders\Desktop\MVCProject\MVCProject.DAL\obj\Debug\MVCProject.DAL.cs
 D:\Windows Folders\Desktop\MVCProject\MVCProject.DAL\obj\Debug\MVCProject.DAL.csproj.CopyComplete
 D:\Windows Folders\Desktop\MVCProject\MVCProject.DAL\obj\Debug\MVCProject.DAL.dll
 D:\Windows Folders\Desktop\MVCProject\MVCProject.DAL\obj\Debug\MVCProject.DAL.pdb
+E:\Windows Folders\Desktop\MVCProject\MVCProject.DAL\bin\Debug\MVCProject.DAL.dll.config
+E:\Windows Folders\Desktop\MVCProject\MVCProject.DAL\bin\Debug\MVCProject.DAL.dll
+E:\Windows Folders\Desktop\MVCProject\MVCProject.DAL\bin\Debug\MVCProject.DAL.pdb
+E:\Windows Folders\Desktop\MVCProject\MVCProject.DAL\bin\Debug\EntityFramework.dll
+E:\Windows Folders\Desktop\MVCProject\MVCProject.DAL\bin\Debug\EntityFramework.SqlServer.dll
+E:\Windows Folders\Desktop\MVCProject\MVCProject.DAL\bin\Debug\EntityFramework.xml
+E:\Windows Folders\Desktop\MVCProject\MVCProject.DAL\bin\Debug\EntityFramework.SqlServer.xml
+E:\Windows Folders\Desktop\MVCProject\MVCProject.DAL\obj\Debug\MVCProject.DAL.csprojAssemblyReference.cache
+E:\Windows Folders\Desktop\MVCProject\MVCProject.DAL\obj\Debug\MVCProject.DAL.csproj.CoreCompileInputs.cache
+E:\Windows Folders\Desktop\MVCProject\MVCProject.DAL\obj\Debug\MVCProject.DAL.csproj.CopyComplete
+E:\Windows Folders\Desktop\MVCProject\MVCProject.DAL\obj\Debug\MVCProject.DAL.dll
+E:\Windows Folders\Desktop\MVCProject\MVCProject.DAL\obj\Debug\MVCProject.DAL.pdb

@@ -26,7 +26,7 @@ namespace MVCProject.BLL {
                 currentPage = value;
             }
         }
-        public int PageSize { get; set; } = 2;
+        public int PageSize { get; set; } = 20;
 
         public int PageCount {
             get {
@@ -70,8 +70,8 @@ namespace MVCProject.BLL {
 
             //fill the list with items
             //(end can be the end of page or the end of collection)
-            for(int i = start; i <= end && i < items.Count; i++)
-                list.Add(items[i]);
+            for(int i = start; i <= end && i <= items.Count; i++)
+                list.Add(items[i - 1]); //use indexes (logic is done without indexing)
 
             return list;
         }

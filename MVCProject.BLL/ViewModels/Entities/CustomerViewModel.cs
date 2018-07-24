@@ -1,6 +1,6 @@
-﻿using MVCProject.DAL;
-using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+
+using MVCProject.DAL;
 
 namespace MVCProject.BLL {
     public class CustomerViewModel {
@@ -15,9 +15,12 @@ namespace MVCProject.BLL {
         [StringLength(50)]
         public string Surname { get; set; }
 
+        [Required]
+        [EmailAddress]
         [StringLength(50)]
         public string Email { get; set; }
 
+        [Required]
         [StringLength(25)]
         public string Telephone { get; set; }
 

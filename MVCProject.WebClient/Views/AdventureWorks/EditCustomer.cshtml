@@ -12,15 +12,15 @@
 
 <div class="form-group">
     <label>Choose customer:</label>
-    @*<select id="ddlCustomers" class="form-control" />*@
+
     @Html.DropDownList(
-                name: "ddlCustomers",
-                selectList: Model.GetCustomersInCurrentLocation().Select(customer => new SelectListItem {
-                    Text = $"{customer}",
-                    Value = customer.ID.ToString()
-                }),
-                htmlAttributes: new { @class = "form-control" }
-            )
+        name: "ddlCustomers",
+        selectList: Model.GetCustomersInCurrentLocation().Select(customer => new SelectListItem {
+            Text = $"{customer}",
+            Value = customer.ID.ToString()
+        }),
+        htmlAttributes: new { @class = "form-control" }
+    )
 </div>
 
 @using (Html.BeginForm()) {
@@ -67,13 +67,13 @@
             @Html.LabelFor(model => model.Customer.CityID, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.DropDownListFor(
-                         model => model.Customer.CityID,
-                         selectList: Model.GetGradovi().Select(city => new SelectListItem {
-                             Text = city.Naziv,
-                             Value = city.IDGrad.ToString()
-                         }),
-                         htmlAttributes: new { @class = "form-control" }
-                     )
+                    model => model.Customer.CityID,
+                    selectList: Model.GetGradovi().Select(city => new SelectListItem {
+                        Text = city.Naziv,
+                        Value = city.IDGrad.ToString()
+                    }),
+                    htmlAttributes: new { @class = "form-control" }
+                )
 
                 @Html.ValidationMessageFor(model => model.Customer.CityID, "", new { @class = "text-danger" })
             </div>
@@ -83,10 +83,10 @@
             @Html.LabelFor(model => model.Customer.CountryID, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.DropDownListFor(
-                                             model => model.Customer.CountryID,
-                                             selectList: new SelectList(Model.GetDrzave(), "IDDrzava", "Naziv"),
-                                             htmlAttributes: new { @class = "form-control" }
-                                         )
+                    model => model.Customer.CountryID,
+                    selectList: new SelectList(Model.GetDrzave(), "IDDrzava", "Naziv"),
+                    htmlAttributes: new { @class = "form-control" }
+                )
 
                 @Html.ValidationMessageFor(model => model.Customer.CountryID, "", new { @class = "text-danger" })
             </div>
@@ -95,13 +95,14 @@
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 <input type="submit" value="Save" class="btn btn-primary" />
+                <button class="btn btn-danger" id="btnDelete">Delete</button>
             </div>
         </div>
     </div>
 }
 
 <div>
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("<  Back to Customer List", "Index", null, new { @class = "btn btn-info" })
 </div>
 
 @section Scripts {
@@ -117,6 +118,28 @@
             var $ddlCities = $("#Customer_CityID");
             var $ddlCountries = $("#Customer_CountryID");
             var $ddlCustomers = $("#ddlCustomers");
+
+            $("#btnDelete").click(function (e) {
+                e.preventDefault();
+
+                $.post(
+                    "@Url.Action(
+                        actionName: "DeleteCustomer",
+                        controllerName: "AdventureWorks"
+                    )",
+                    {
+                        customerID: $txtID.val()
+                    },
+                    data => {
+                        if (data.Success) {
+                            @{ Session["deletedCustomer"] = Model.Customer.ToString(); }
+                            location.href = data.RedirectUrl;
+                        }
+                        else
+                            toastr.warning("Customer @Model.Customer.ToString() wasn't deleted", "Delete failed");
+                    }
+                );
+            })
 
             $ddlCustomers.val(@Model.Customer.ID)
             $ddlCustomers.change(() => {
@@ -173,7 +196,6 @@
                         else
                             toastr.warning("Customer " + data.DisplayName + " wasn't updated", "Update failed");
                     }
-                    ).fail((e) => console.log("Error", e)
                 );
             });
 

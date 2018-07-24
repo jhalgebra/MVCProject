@@ -2,14 +2,15 @@
 @model ViewBillsViewModel
 
 @{
-    ViewBag.Title = "ViewBills";
+    ViewBag.Title = "Bills";
 }
 
-<h2>View Bills</h2>
+<h2 class="page-header">Bills</h2>
 
 @Html.HiddenFor(model => model.CustomerID)
 
-@using (Html.BeginForm()) {
+@using (Html.BeginForm())
+{
 
     <div class="row filters">
         <div class="form-group col-md-6">
@@ -43,23 +44,28 @@
     pagerRoute: new RouteInfo<int> {
         ControllerName = "AdventureWorks",
         ActionName = "ViewBills",
-        RouteValues = page => new { customerID = @Model.CustomerID, page }
+        RouteValues = page => new {
+            customerID = Model.CustomerID,
+            page,
+            sort = Model.Sort,
+            ascendingSort = Model.AscendingSort
+        }
     },
     headers: new[] { "Date Issued", "Number", "Commercialist's name", "Credit Card Type",
 "Credit Card Number", "Credit Card Expiration Date" }
 )
 
+@Html.ActionLink(
+    linkText: "<  Back to Customer List",
+    actionName: "ViewCustomerData",
+    controllerName: "AdventureWorks",
+    routeValues: null,
+    htmlAttributes: new { @class = "btn btn-info" }
+)
+
 @section scripts{
     <script>
         $(function () {
-            bindTrClick();
-
-            $("#Sort, #AscendingSort").change(function (e) {
-                $("form").submit();
-            });
-        });
-
-        function bindTrClick() {
             $("tr").click(function (e) {
                 $.post(
                     "@Url.Action(
@@ -79,6 +85,10 @@
                     }
                 );
             });
-        }
+
+            $("#Sort, #AscendingSort").change(function (e) {
+                $("form").submit();
+            });
+        });
     </script>
 }

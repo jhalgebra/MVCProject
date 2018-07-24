@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace MVCProject.DAL {
@@ -45,6 +44,21 @@ namespace MVCProject.DAL {
                 kupac.Prezime = customer.Prezime;
                 kupac.Telefon = customer.Telefon;
 
+                return model.SaveChanges() > 0;
+            }
+        }
+
+        public static bool DeleteCustomer(int customerID)
+        {
+            using(var model = new DataModel())
+            {
+                var customer = model.Kupac.Find(customerID);
+
+                var billsToRemove = model.Racun.Where(racun => racun.KupacID == customerID);
+                var billsToRemoveIDs = billsToRemove.Select(bill => bill.IDRacun);
+                model.Stavka.RemoveRange(model.Stavka.Where(stavka => billsToRemoveIDs.Contains(stavka.RacunID)));
+                model.Racun.RemoveRange(billsToRemove);
+                model.Kupac.Remove(customer);
                 return model.SaveChanges() > 0;
             }
         }

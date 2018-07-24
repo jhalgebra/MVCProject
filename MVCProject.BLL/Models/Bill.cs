@@ -14,22 +14,31 @@ namespace MVCProject.BLL {
         }
 
         public static Bill FromRacun(Racun racun)
-            => new Bill(racun.IDRacun) {
-                DateIssued = racun.DatumIzdavanja,
-                Number = racun.BrojRacuna,
-                Commercialist = new Commercialist {
-                    FullName = $"{racun.Komercijalist.Ime} {racun.Komercijalist.Prezime}",
-                    FullTime = racun.Komercijalist.StalniZaposlenik.Value
-                },
-                CreditCard = new CreditCard {
-                    ExpiryDate = new DateTime(
-                       racun.KreditnaKartica.IstekGodina,
-                       racun.KreditnaKartica.IstekMjesec,
-                       1
-                   ),
-                    Number = racun.KreditnaKartica.Broj,
-                    Type = racun.KreditnaKartica.Tip
-                }
-            };
+        {
+            try
+            {
+                return new Bill(racun.IDRacun)
+                {
+                    DateIssued = racun.DatumIzdavanja,
+                    Number = racun.BrojRacuna,
+                    Commercialist = new Commercialist
+                    {
+                        FullName = $"{racun.Komercijalist.Ime} {racun.Komercijalist.Prezime}",
+                        FullTime = racun.Komercijalist.StalniZaposlenik.Value
+                    },
+                    CreditCard = new CreditCard
+                    {
+                        ExpiryDate = new DateTime(
+                             racun.KreditnaKartica.IstekGodina,
+                             racun.KreditnaKartica.IstekMjesec,
+                             1
+                         ),
+                        Number = racun.KreditnaKartica.Broj,
+                        Type = racun.KreditnaKartica.Tip
+                    }
+                };
+            }
+            catch(Exception ex) { return null; }
+        }
     }
 }

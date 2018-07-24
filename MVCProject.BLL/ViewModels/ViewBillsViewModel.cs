@@ -81,6 +81,7 @@ namespace MVCProject.BLL
             Bills.SetCollection(SortBills(
                 Repository.GetBillsForCustomer(CustomerID)
                 .Select(racun => Bill.FromRacun(racun))
+                .Where(racun => racun != null)
             ).ToList());
         }
 

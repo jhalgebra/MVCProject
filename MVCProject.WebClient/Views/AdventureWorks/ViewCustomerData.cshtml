@@ -2,7 +2,7 @@
 @model ViewCustomersViewModel
 
 @{
-    ViewBag.Title = "View Customer Data";
+    ViewBag.Title = "Customers";
 
     var editButtonRoute = User.IsInRole("Administrator")
         ? new RouteInfo<CustomerViewModel> {
@@ -13,7 +13,7 @@
         : null;
 }
 
-<h2>View Customer Data</h2>
+<h2 class="page-header">Customers</h2>
 
 @using (Html.BeginForm()) {
 <div class="row filters">
@@ -62,23 +62,19 @@
 @section scripts{
     <script>
         $(function () {
-            bindTrClick();
+            var customer = "@Session["deletedCustomer"]";
+            if (customer != "") {
+                toastr.success("Customer " + customer + " has been deleted successfully", "Delete succeeded");
+                @{ Session["deletedCustomer"] = null; }
+            }
 
-            $("#CityID, #CountryID").change(function (e) {
-                $("form").submit();
-            });
-        })
-        
-        function bindTrClick() {
             $("tr a").click(function () {
+                event.stopPropagation();
+
                 hideModal();
             })
 
-            $("tr a").click(function (e) {
-                event.stopPropagation();
-            })
-
-            $("tr").click(function (e) {
+            $("tr").click(function () {
                 $.post(
                     "@Url.Action(
                         actionName: "CheckBills",
@@ -95,6 +91,10 @@
                     }
                 );
             });
-        }
+
+            $("#CityID, #CountryID").change(function () {
+                $("form").submit();
+            });
+        })
     </script>
 }

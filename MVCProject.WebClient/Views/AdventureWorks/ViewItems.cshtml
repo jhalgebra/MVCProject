@@ -6,13 +6,12 @@
 }
 
 <style>
-    td:hover{
+    td:hover {
         cursor: default;
     }
 </style>
 
-<h2>Items</h2>
-<br />
+<h2 class="page-header" style="border: none;">Items</h2>
 
 @Html.Table(
     data: @Model.Items,
@@ -24,8 +23,16 @@
     {
         ControllerName = "AdventureWorks",
         ActionName = "ViewItems",
-        RouteValues = page => new { billID = Model.BillID, page }
+        RouteValues = page => new { customerID = Model.CustomerID, billID = Model.BillID, page }
     },
     headers: new[] { "Quantity", "Cost per unit", "Discount (%)", "Total price", "Product name", "Number",
     "Color", "Minimal stored quantity", "Price without VAT", "Category", "Subcategory" }
+)
+
+@Html.ActionLink(
+    linkText: "<  Back to Bills",
+    actionName: "ViewBills",
+    controllerName: "AdventureWorks",
+    routeValues: new { customerID = Model.CustomerID },
+    htmlAttributes: new { @class = "btn btn-info" }
 )

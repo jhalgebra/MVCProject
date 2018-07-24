@@ -7,9 +7,13 @@ using MVCProject.BLL;
 
 namespace MVCProject.WebClient {
     public static class Extensions {
+        #region Pager Settings
+
         private const int maxPageCount = 10;
         private const int pagerLeft = 5;
         private const int pagerRight = 4;
+
+        #endregion
 
         public static MvcHtmlString Table<T>(
             this HtmlHelper helper,
@@ -76,7 +80,7 @@ namespace MVCProject.WebClient {
                 var row = new TagBuilder("tr");
 
                 if (trClickRoute.Check(item))
-                    row.MergeAttribute("onclick", $@"location.href = '{trClickRoute.GetActionUrl(item)}'");
+                    row.MergeAttribute("onclick", $"location.href = '{trClickRoute.GetActionUrl(item)}'");
 
                 if (idProperty != null)
                     row.MergeAttribute("id", Utils.GetValue(idProperty, item)?.ToString());
@@ -112,28 +116,34 @@ namespace MVCProject.WebClient {
 
             #region Pager Logic
 
+            //flags whether or not to show first or last page buttons
             var left = data.CurrentPage > pagerLeft + 1;
             var right = data.PageCount > maxPageCount && (data.PageCount - data.CurrentPage) > pagerRight;
 
             if (left)
                 pager.InnerHtml += PagerButton("<<", 1, true, pagerRoute);
 
+            //left most button (beside first page button)
             var start = data.CurrentPage <= pagerLeft ? 1 : data.CurrentPage - pagerLeft;
+            //right most button (besided last page button)
             var end = start + maxPageCount - 1;
 
+            //testing for edge cases
             var endDiff = data.PageCount - end;
 
+            //example: PageCount = 30, end = 35 (start = 26)
+            //endDiff will be negative, that amount of pages needs to be added to the left
             if(endDiff < 0)
             {
-                start += endDiff;
-                end = data.PageCount;
+                //add the pages to the left (endDiff is negative)
+                start += endDiff; 
+                //set the end to be equal to the PageCount
+                end = data.PageCount; 
 
+                //edge case for the left side
                 if (start < 1)
                     start = 1;
             }
-
-            if ((right || (end - start + 1 < maxPageCount)) && !data.HasPageOverflow)
-                end--;
 
             for (int i = start; i <= end; i++)
                 buttonGroup.InnerHtml += PagerButton(i, i == data.CurrentPage, pagerRoute);
